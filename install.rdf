@@ -16,7 +16,7 @@
     <!-- the operator of the Piperka service -->
     <em:contributor>Kari Pahula</em:contributor>
 
-    <em:iconURL>chrome://piperka/skin/icon-48.png</em:iconURL>
+    <em:iconURL>chrome://piperka/skin/icon-32.png</em:iconURL>
     <em:icon64URL>chrome://piperka/skin/icon-64.png</em:icon64URL>
 
     <em:targetApplication>
