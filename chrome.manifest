@@ -1,2 +1,7 @@
 
-skin        piperka classic/1.0 skin/
+content piperka chrome/content/
+overlay chrome://browser/content/browser.xul chrome://piperka/content/browser.xul
+
+locale  piperka en-US   locale/en-US/
+
+skin    piperka classic/1.0 skin/

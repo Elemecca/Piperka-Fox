@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://piperka/locale/piperka.dtd">
+<overlay id="piperkaOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+  <menupopup id="viewSidebarMenu">
+    <menuitem key="key_openPiperkaSidebar" observes="viewPiperkaSidebar" />
+  </menupopup>
+  
+  <keyset id="mainKeyset">
+    <key id="key_openPiperkaSidebar" command="viewPiperkaSidebar"
+         key="&openSidebar.commandkey;" 
+         modifiers="&openSidebar.modifierskey;" />
+  </keyset>
+  
+  <broadcasterset id="mainBroadcasterSet"> 
+    <broadcaster id="viewPiperkaSidebar" 
+                 label="&sidebar.title;"
+                 autoCheck="false"
+                 type="checkbox"
+                 group="sidebar"
+                 sidebarurl="chrome://piperka/content/sidebar.xul"
+                 sidebartitle="&sidebar.title;"
+                 oncommand="toggleSidebar('viewPiperkaSidebar');" />
+  </broadcasterset>
+</overlay>
+<!-- vim: se ft=xml sts=2 sw=2 et -->
