@@ -8,20 +8,19 @@
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" >
   <tree flex="1" hidecolumnpicker="true">
     <treecols>
-      <treecol id="icon" />
-      <treecol id="title" flex="1" />
-      <treecol id="count" />
+      <treecol id="title" hideheader="true" flex="1" />
+      <treecol id="count" hideheader="true" properties="count" />
     </treecols>
 
     <treechildren>
       <treeitem><treerow>
-        <treecell label="I" />
-        <treecell label="Some Comic" />
+        <treecell label="Some Comic"
+                  src="chrome://piperka/skin/icon-16.png" />
         <treecell label="43" />
       </treerow></treeitem>
       <treeitem><treerow>
-        <treecell label="O" />
-        <treecell label="Another Comic" />
+        <treecell label="Another Comic"
+                  src="chrome://piperka/skin/icon-16.png" />
         <treecell label="7" />
       </treerow></treeitem>
     </treechildren>
