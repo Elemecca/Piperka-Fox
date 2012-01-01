@@ -1,0 +1,10 @@
+
+.piperka-toolbar-button {
+    list-style-image: url('chrome://piperka/skin/icon-24.png');
+}
+
+toolbar[iconsize="small"] .piperka-toolbar-button {
+    list-style-image: url('chrome://piperka/skin/icon-16.png');
+}
+
+/* vim: se sts=4 sw=4 et :miv */

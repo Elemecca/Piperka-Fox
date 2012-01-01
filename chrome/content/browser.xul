@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<?xml-stylesheet href="chrome://piperka/skin/browser.css" type="text/css" ?>
+
 <!DOCTYPE overlay SYSTEM "chrome://piperka/locale/piperka.dtd">
 <overlay id="piperkaOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -7,6 +9,12 @@
   <menupopup id="viewSidebarMenu">
     <menuitem observes="viewPiperkaSidebar" />
   </menupopup>
+
+  <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton class="piperka-toolbar-button toolbarbutton-1"
+                   observes="viewPiperkaSidebar"
+                   title="&toggleSidebar.title;" />
+  </toolbarpalette>
   
   <broadcasterset id="mainBroadcasterSet"> 
     <broadcaster id="viewPiperkaSidebar" 

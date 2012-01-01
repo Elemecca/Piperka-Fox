@@ -5,3 +5,4 @@ overlay chrome://browser/content/browser.xul chrome://piperka/content/browser.xu
 locale  piperka en-US   locale/en-US/
 
 skin    piperka classic/1.0 skin/
+style   chrome://global/content/customizeToolbar.xul chrome://piperka/skin/browser.css
