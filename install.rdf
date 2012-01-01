@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>piperka@maltera.com</em:id>
+    <em:version>0.1pre</em:version>
+    <em:type>2<!--Extensions--></em:type>
+
+    <em:name>Piperka</em:name>
+    <em:description>
+      A client for the Piperka comic syndication service.
+    </em:description>
+
+    <em:creator>Sam Hanes</em:creator>
+    <!-- the operator of the Piperka service -->
+    <em:contributor>Kari Pahula</em:contributor>
+
+    <em:iconURL>chrome://piperka/skin/icon-48.png</em:iconURL>
+    <em:icon64URL>chrome://piperka/skin/icon-64.png</em:icon64URL>
+
+    <em:targetApplication>
+      <!-- Firefox -->
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <!-- TODO: test in older versions -->
+        <em:minVersion>8.0</em:minVersion>
+        <em:maxVersion>8.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+  </Description>
+</RDF>
+<!-- vim: se ft=xml sts=2 sw=2 et -->
