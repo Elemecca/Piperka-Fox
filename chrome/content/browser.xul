@@ -5,14 +5,8 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   
   <menupopup id="viewSidebarMenu">
-    <menuitem key="key_openPiperkaSidebar" observes="viewPiperkaSidebar" />
+    <menuitem observes="viewPiperkaSidebar" />
   </menupopup>
-  
-  <keyset id="mainKeyset">
-    <key id="key_openPiperkaSidebar" command="viewPiperkaSidebar"
-         key="&openSidebar.commandkey;" 
-         modifiers="&openSidebar.modifierskey;" />
-  </keyset>
   
   <broadcasterset id="mainBroadcasterSet"> 
     <broadcaster id="viewPiperkaSidebar" 
