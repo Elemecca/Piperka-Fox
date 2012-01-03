@@ -5,25 +5,24 @@
 <!DOCTYPE page SYSTEM "chrome://piperka/locale/piperka.dtd">
 
 <page id="piperkaSidebar" title="&sidebar.title;"
-      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" >
-  <tree flex="1" hidecolumnpicker="true">
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      onload="treeSetup();" >
+
+  <script src="chrome://piperka/content/treeView.js" />
+  <script>
+    function treeSetup() {
+      document.getElementById( 'piperka-comic-list' )
+          .view = new piperkaTreeView();
+    }
+  </script>
+  <tree id="piperka-comic-list" flex="1"
+        hidecolumnpicker="true" seltype="single">
     <treecols>
-      <treecol id="title" hideheader="true" flex="1" />
-      <treecol id="count" hideheader="true" properties="count" />
+      <treecol id="title" flex="2" />
+      <treecol id="count" flex="1" properties="count" />
     </treecols>
 
-    <treechildren>
-      <treeitem><treerow>
-        <treecell label="Some Comic"
-                  src="chrome://piperka/skin/icon-16.png" />
-        <treecell label="43" />
-      </treerow></treeitem>
-      <treeitem><treerow>
-        <treecell label="Another Comic"
-                  src="chrome://piperka/skin/icon-16.png" />
-        <treecell label="7" />
-      </treerow></treeitem>
-    </treechildren>
+    <treechildren/>
   </tree>
 </page>
 <!-- vim: se ft=xml sts=2 sw=2 et -->
