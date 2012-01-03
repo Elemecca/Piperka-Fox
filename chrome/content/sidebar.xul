@@ -15,11 +15,12 @@
           .view = new piperkaTreeView();
     }
   </script>
+
   <tree id="piperka-comic-list" flex="1"
         hidecolumnpicker="true" seltype="single">
     <treecols>
-      <treecol id="title" flex="2" />
-      <treecol id="count" flex="1" properties="count" />
+      <treecol id="title" hideheader="true" flex="5" />
+      <treecol id="count" hideheader="true" flex="1" properties="count" />
     </treecols>
 
     <treechildren/>

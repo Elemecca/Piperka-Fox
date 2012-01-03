@@ -1,4 +1,9 @@
 
+tree {
+    margin: 0;
+    padding: 0;
+}
+
 treechildren::-moz-tree-image {
     margin-right: 2px;
 }
@@ -10,3 +15,5 @@ treechildren::-moz-tree-cell-text(count) {
 treecol#count {
     text-align: right;
 }
+
+/* vim: se sts=4 sw=4 et :miv */
