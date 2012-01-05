@@ -12,7 +12,7 @@
   <script>
     function treeSetup() {
       document.getElementById( 'piperka-comic-list' )
-          .view = new piperkaTreeView();
+          .view = new piperka.treeView();
     }
   </script>
 
@@ -26,4 +26,4 @@
     <treechildren/>
   </tree>
 </page>
-<!-- vim: se ft=xml sts=2 sw=2 et -->
+<!-- vim: se ft=xml sts=2 sw=2 et :miv -->

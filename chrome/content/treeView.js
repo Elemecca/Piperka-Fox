@@ -1,9 +1,11 @@
 
-/** @class Custom tree view for the Piperka sidebar.
- */
-var piperkaTreeView;
-if (!piperkaTreeView) (function(){
-    piperkaTreeView = function () {
+var piperka;
+if (!piperka) piperka = {};
+
+if (!piperka.treeView) (function(){
+    /** @class Custom tree view for the Piperka sidebar.
+     */
+    piperka.treeView = function () {
         this.rowCount = 186;
         this.rows = [];
 
@@ -20,7 +22,7 @@ if (!piperkaTreeView) (function(){
                     Math.floor( Math.random() * titles.length ) ];
         }
     };
-    var C = piperkaTreeView.prototype = {};
+    var C = piperka.treeView.prototype = {};
     
     /** Informs the model of the view it is to service.
      * @param {nsITreeBoxObject} tree the tree to be served
