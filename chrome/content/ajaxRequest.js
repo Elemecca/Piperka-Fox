@@ -13,6 +13,10 @@ if (!piperka.ajaxRequest) (function(){
     };
     var P = piperka.ajaxRequest.prototype = {};
 
+    P.__defineGetter__( 'uri', function() {
+        return this._uri;
+    });
+
     P.__defineGetter__( 'listeners', function() {
         if (this._listeners) return this._listeners;
         var L = this._listeners = {};
@@ -92,18 +96,18 @@ if (!piperka.ajaxRequest) (function(){
         L.onProgress = function (request, context, current, max) {};
         L.onStatus = function (request, context, statCode, statArg) {};
 
+        L.onLoad = function (event) {};
+        L.onError = function (event) {};
+
         return L;
     }); // end listeners
-
-    P.__defineGetter__( 'uri', function() {
-        return this._uri;
-    });
 
     P.open = function() {
         var request = Cc[ '@mozilla.org/xmlextras/xmlhttprequest;1' ]
                 .createInstance( Ci.nsIDOMEventTarget );
         
-
+        request.addEventListener( 'load',  this.listeners.onLoad,  false );
+        request.addEventListener( 'error', this.listeners.onError, false );
 
         request = request.QueryInterface( Ci.nsIXMLHttpRequest );
         request.open( 'GET', this._uri, true );
