@@ -26,16 +26,13 @@ if (!piperka.AJAXRequest) (function(){
         if (!uri.schemeIs( "http" ) && !uri.schemeIs( "https" ))
             throw new Error( "only HTTP(S) requests are supported" );
         
+        // prepare a channel
         this._channel = ios.newChannelFromURI( uri )
                         .QueryInterface( Ci.nsIHttpChannel );
         this._channel.notificationCallbacks = this.listeners;
     };
     const C = piperka.AJAXRequest;
     const P = C.prototype = {};
-
-    P.__defineGetter__( 'uri', function() {
-        return this._uri;
-    });
 
     P.__defineGetter__( 'listeners', function() {
         if (this._listeners) return this._listeners;
@@ -116,22 +113,55 @@ if (!piperka.AJAXRequest) (function(){
             return true;
         };
 
-        L.onProgress = function (request, context, current, max) {};
-        L.onStatus = function (request, context, statCode, statArg) {};
+        L.onProgress = function (channel, context, current, max) {};
+        L.onStatus = function (channel, context, statCode, statArg) {};
 
-        L.onStartRequest = function (request, context) {
+        L.onStartRequest = function (channel, context) {
+            channel = channel.QueryInterface( Ci.nsIHttpChannel );
+
+            // If the request failed or we got a no-content response
+            // don't bother with setting up a content handler. The
+            // channel will clean up and call onStopRequest on its own.
+            if (!channel.requestSucceeded
+                    || 204 == channel.responseStatus
+                    || 205 == channel.responseStatus)
+                return;
+
+            const type = channel.contentType;
+            
+            // if the user has forced the content type, verify it
+            if (this._requireType && type != this._requireType) {
+                this._error = "require type " + this._requireType
+                              + " but was " + type;
+                throw new Error( "wrong content type" );
+            }
+
             
         };
 
-        L.onStopRequest = function (request, context, status) {
+        L.onStopRequest = function (channel, context, status) {
 
         };
 
-        L.onDataAvailable = function (request, context, stream, offset, count) {
+        L.onDataAvailable = function (channel, context, stream, offset, count) {
 
         };
 
         return L;
     }); // end listeners
 
+    P.__defineGetter__( 'uri', function() {
+        return this._uri;
+    });
+
+    P.__defineGetter__( 'requireType', function() {
+        return this._requireType;
+    });
+
+    P.__defineSetter__( 'requireType', function (type) {
+        // XXX: check whether the request has been started
+        this._requireType = type;
+    });
+
+    
 })(); // end anonymouse closure scope
