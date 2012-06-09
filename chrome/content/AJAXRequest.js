@@ -6,13 +6,17 @@ if (!piperka.AJAXRequest) (function(){
     const Cc = Components.classes, Ci = Components.interfaces,
           Cr = Components.results, Cu = Components.utils;
 
-    /** @class Wrapper for {@link XmlHttpRequest} for JS modules.
+    /** @class Wrapper for {@link XMLHttpRequest} for JS modules.
      *
      * @description Prepares a new AJAX request.
      * @param {string} uri the absolute URI to be requested
      */
     piperka.AJAXRequest = function (uri) {
         this._uri = uri;
+        this._callbacks = new Array();
+        this._sent = false;
+        this._completed = false;
+        this._failed = false;
         
         var request = Cc[ '@mozilla.org/xmlextras/xmlhttprequest;1' ]
         	.createInstance( Ci.nsIDOMEventTarget );
@@ -20,13 +24,16 @@ if (!piperka.AJAXRequest) (function(){
 		request.addEventListener( 'load',  this.listeners.onLoad,  false );
 		request.addEventListener( 'error', this.listeners.onError, false );
 
-		this._request = request =
-			request.QueryInterface( Ci.nsIXMLHttpRequest );
+		request = request.QueryInterface( Ci.nsIXMLHttpRequest );
 		request.open( 'GET', this._uri, true );
 		
-		req.responseType = 'document';
-
-		request.channel.notificationCallbacks = this.listeners;
+		// the response is an HTML document, parse it
+		request.responseType = 'document';
+		
+		// prevent the request from triggering the throbber or showing prompts
+		request.mozBackgroundRequest = true;
+		
+		this._request = request;
     };
     const C = piperka.AJAXRequest;
     const P = C.prototype = {};
@@ -38,13 +45,7 @@ if (!piperka.AJAXRequest) (function(){
 
         L._interfaces = [
                 Ci.nsISupports,
-                Ci.nsIInterfaceRequestor,
-                Ci.nsIBadCertListener2,
-                Ci.nsISSLErrorListener,
-                Ci.nsIPrompt,
-                Ci.nsIAuthPrompt,
-                Ci.nsIAuthPromptProvider,
-                Ci.nsIProgressEventSink
+                Ci.nsIInterfaceRequestor
             ];
 
         L.QueryInterface = function (iid) {
@@ -52,71 +53,57 @@ if (!piperka.AJAXRequest) (function(){
                     function (v) { return iid.equals( v ); } ) )
                 throw Cr.NS_ERROR_NO_INTERFACE;
 
-            switch (iid) {
-            case Ci.nsIPrompt:
-                return L._prompt;
-            case Ci.nsIAuthPrompt:
-                return L._authPrompt;
-            default:
-                return L;
-            }
+            return L;
         };
         L.getInterface = L.QueryInterface;
 
-        function promptNotImplemented() {
-            throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-        }
-
-        function promptAuthFail() {
-            request._authFailed = true;
-            return false;
-        }
-
-        L._prompt = {
-            QueryInterface: L.QueryInterface,
-            getInterface:   L.QueryInterface,
-            alert:          promptNotImplemented,
-            alertCheck:     promptNotImplemented,
-            confirm:        promptNotImplemented,
-            confirmCheck:   promptNotImplemented,
-            confirmEx:      promptNotImplemented,
-            prompt:         promptNotImplemented,
-            select:         promptNotImplemented,
-            promptPassword: promptAuthFail,
-            promptUsernameAndPassword: promptAuthFail
+        L.onLoad = function (event) {
+        	this._completed = true;
+        	
+        	for (var idx = 0; idx < request._callbacks.length; idx++) {
+        		try {
+        			request._callbacks[ idx ]( request );
+        		} catch (caught) {
+        			// XXX: figure out how to report this
+        		}
+        	}
         };
-
-        L._authPrompt = {
-            QueryInterface: L.QueryInterface,
-            getInterface:   L.QueryInterface,
-            prompt: promptAuthFail,
-            promptPassword: promptAuthFail,
-            promptUsernameAndPassword: promptAuthFail
+        
+        L.onError = function (event) {
+        	this._completed = true;
+        	this._failed = true;
         };
-
-        L.getAuthPrompt = function() {
-            request._authFailed = true;
-            throw Cr.NS_ERROR_NOT_AVAILABLE;
-        };
-
-        L.notifyCertProblem = function() {
-            return true;
-        };
-
-        L.notifySSLError = function() {
-            return true;
-        };
-
-        L.onProgress = function (channel, context, current, max) {};
-        L.onStatus = function (channel, context, statCode, statArg) {};
-
-        L.onLoad = function (event) {};
-        L.onError = function (event) {};
 
         return L;
     }); // end listeners
 
+    P.addCallback = function (listener) {
+    	if (this._sent)
+    		throw new Error( "request has already been sent" );
+    	if (typeof listener !== 'function')
+    		throw new Error( "listener must be a function" );
+    	
+    	this._callbacks.push( listener );
+    };
+    
     P.send = function() {
-    	request.send( null );
+    	if (this._sent) throw new Error( "request has already been sent" );
+    	
+    	this._request.send( null );
+    	
+    	this._sent = true;
+    };
+    
+    P.getDocument = function() {
+    	if (!this._completed)
+    		throw new Error( "request has not yet completed" );
+    	if (this._failed)
+    		throw new Error( "request failed" );
+    	
+    	var document = this._request.responseXML;
+    	if (null == document)
+    		throw new Error( "response wrong content type or unparsable" );
+    	
+    	return document;
     };
 })(); // end anonymous closure scope
