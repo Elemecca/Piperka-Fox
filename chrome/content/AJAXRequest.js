@@ -6,30 +6,27 @@ if (!piperka.AJAXRequest) (function(){
     const Cc = Components.classes, Ci = Components.interfaces,
           Cr = Components.results, Cu = Components.utils;
 
-    /** @class Alternative to {@link XmlHttpRequest} with HTML support.
+    /** @class Wrapper for {@link XmlHttpRequest} for JS modules.
      *
      * @description Prepares a new AJAX request.
-     * @param {nsIURI|string} uri the absolute URI to be requested
+     * @param {string} uri the absolute URI to be requested
      */
     piperka.AJAXRequest = function (uri) {
-        const ios = Cc[ "@mozilla.org/network/io-service;1" ]
-                    .getService( Ci.nsIIOService );
+        this._uri = uri;
+        
+        var request = Cc[ '@mozilla.org/xmlextras/xmlhttprequest;1' ]
+        	.createInstance( Ci.nsIDOMEventTarget );
 
-        // get an nsIURI from whatever the caller gave us
-        if (typeof uri === 'string') {
-            this._uri = uri = ios.newURI( uri, null, null );
-        } else {
-            this._uri = uri = uri.QueryInterface( Ci.nsIURI );
-        }
-        
-        // verify that they gave us an HTTP URI
-        if (!uri.schemeIs( "http" ) && !uri.schemeIs( "https" ))
-            throw new Error( "only HTTP(S) requests are supported" );
-        
-        // prepare a channel
-        this._channel = ios.newChannelFromURI( uri )
-                        .QueryInterface( Ci.nsIHttpChannel );
-        this._channel.notificationCallbacks = this.listeners;
+		request.addEventListener( 'load',  this.listeners.onLoad,  false );
+		request.addEventListener( 'error', this.listeners.onError, false );
+
+		this._request = request =
+			request.QueryInterface( Ci.nsIXMLHttpRequest );
+		request.open( 'GET', this._uri, true );
+		
+		req.responseType = 'document';
+
+		request.channel.notificationCallbacks = this.listeners;
     };
     const C = piperka.AJAXRequest;
     const P = C.prototype = {};
@@ -47,15 +44,12 @@ if (!piperka.AJAXRequest) (function(){
                 Ci.nsIPrompt,
                 Ci.nsIAuthPrompt,
                 Ci.nsIAuthPromptProvider,
-                Ci.nsIProgressEventSink,
-                //Ci.nsIChannelEventSink,
-                Ci.nsIRequestObserver,
-                Ci.nsIStreamListener
+                Ci.nsIProgressEventSink
             ];
 
         L.QueryInterface = function (iid) {
             if (!L._interfaces.some(
-                    function (v) { return iid.equals( v ); } )
+                    function (v) { return iid.equals( v ); } ) )
                 throw Cr.NS_ERROR_NO_INTERFACE;
 
             switch (iid) {
@@ -116,52 +110,13 @@ if (!piperka.AJAXRequest) (function(){
         L.onProgress = function (channel, context, current, max) {};
         L.onStatus = function (channel, context, statCode, statArg) {};
 
-        L.onStartRequest = function (channel, context) {
-            channel = channel.QueryInterface( Ci.nsIHttpChannel );
-
-            // If the request failed or we got a no-content response
-            // don't bother with setting up a content handler. The
-            // channel will clean up and call onStopRequest on its own.
-            if (!channel.requestSucceeded
-                    || 204 == channel.responseStatus
-                    || 205 == channel.responseStatus)
-                return;
-
-            const type = channel.contentType;
-            
-            // if the user has forced the content type, verify it
-            if (this._requireType && type != this._requireType) {
-                this._error = "require type " + this._requireType
-                              + " but was " + type;
-                throw new Error( "wrong content type" );
-            }
-
-            
-        };
-
-        L.onStopRequest = function (channel, context, status) {
-
-        };
-
-        L.onDataAvailable = function (channel, context, stream, offset, count) {
-
-        };
+        L.onLoad = function (event) {};
+        L.onError = function (event) {};
 
         return L;
     }); // end listeners
 
-    P.__defineGetter__( 'uri', function() {
-        return this._uri;
-    });
-
-    P.__defineGetter__( 'requireType', function() {
-        return this._requireType;
-    });
-
-    P.__defineSetter__( 'requireType', function (type) {
-        // XXX: check whether the request has been started
-        this._requireType = type;
-    });
-
-    
-})(); // end anonymouse closure scope
+    P.send = function() {
+    	request.send( null );
+    };
+})(); // end anonymous closure scope
