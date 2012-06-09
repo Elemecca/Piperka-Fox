@@ -1,3 +1,4 @@
 
 <!ENTITY sidebar.title "Piperka">
 <!ENTITY toggleSidebar.title "Piperka Sidebar">
+<!ENTITY sidebar.loading "Piperka is loading your comic list from the server. Please wait.">

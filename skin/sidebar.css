@@ -1,4 +1,16 @@
 
+page.loading #piperka-loading {
+	
+}
+
+#piperka-loading description {
+	text-align: center;
+}
+
+page.loading #piperka-comic-list {
+	display: none;
+}
+
 tree {
     margin: 0;
     padding: 0;
