@@ -9,7 +9,7 @@
 
     <em:name>Piperka</em:name>
     <em:description>
-      A client for the Piperka comic syndication service.
+      A client for Piperka, a webcomic bookmarking service.
     </em:description>
 
     <em:creator>Sam Hanes</em:creator>
