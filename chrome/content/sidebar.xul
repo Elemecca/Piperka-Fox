@@ -1,29 +1,33 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
-<?xml-stylesheet href="chrome://browser/skin/browser.css" type="text/css" ?>
+<?xml-stylesheet href="chrome://browser/skin/places/places.css"?>
 <?xml-stylesheet href="chrome://piperka/skin/sidebar.css" type="text/css" ?>
 <!DOCTYPE page SYSTEM "chrome://piperka/locale/piperka.dtd">
 
-<page id="piperkaSidebar" title="&sidebar.title;" class="loading"
-      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      onload="treeSetup();" >
+<!--
+ * This ID belongs properly to the Bookmarks sidebar. We've appropriated it
+ * here in order to copy the places sidebars' style. The CSS which provides
+ * that style selects only on ID, not on a class. Duplicating the ID shouldn't
+ * cause a conflict because each sidebar is its own document. 
+-->
+<page id="bookmarksPanel" title="&sidebar.title;" class="loading"
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" >
 
-  <vbox id="piperka-loading" flex="1" pack="center" >
-  	<hbox pack="center">
-  	  <image src="chrome://piperka/skin/icon-64.png" />
-  	</hbox>
-  	<description>&sidebar.loading;</description>
-  	<progressmeter mode="undetermined" width="100%" />
+  <script src="chrome://piperka/content/treeView.js" />
+  <script src="chrome://piperka/content/sidebar.js" />
+
+  <vbox id="loading" flex="1" pack="center" align="center" >
+  	<image src="chrome://global/skin/media/throbber.png" />
   </vbox>
 
-  <tree id="piperka-comic-list" flex="1"
+  <tree id="comic-list" flex="1" class="sidebar-placesTree"
         hidecolumnpicker="true" seltype="single">
     <treecols>
       <treecol id="title" hideheader="true" flex="5" />
       <treecol id="count" hideheader="true" flex="1" properties="count" />
     </treecols>
 
-    <treechildren/>
+    <treechildren class="sidebar-placesTreechildren"/>
   </tree>
 </page>
 <!-- vim: se ft=xml sts=2 sw=2 et :miv -->

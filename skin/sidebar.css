@@ -1,13 +1,13 @@
 
-page.loading #piperka-loading {
-	
+#loading {
+	display: none;
 }
 
-#piperka-loading description {
-	text-align: center;
+page.loading #loading {
+	display: -moz-box;
 }
 
-page.loading #piperka-comic-list {
+page.loading #comic-list {
 	display: none;
 }
 
