@@ -5,6 +5,7 @@ if (!piperka) piperka = {};
 if (!piperka.ComicList) (function(){
 	
 	piperka.ComicList = function () {
+		pk_log( "constructing ComicList" );
 		this._user = "elemecca_test";
 		
 		this.fetchComicList = this.fetchComicList.bind( this );
@@ -16,6 +17,8 @@ if (!piperka.ComicList) (function(){
 	const P = piperka.ComicList.prototype = {};
 	
 	P.fetchComicList = function (offset) {
+		pk_log( "fetching list at offset " + offset );
+		
 		var request = new piperka.AJAXRequest(
 				"http://piperka.net/profile.html?name="
 				+ encodeURIComponent( this._user ) + "&offset=" + offset );
@@ -24,10 +27,15 @@ if (!piperka.ComicList) (function(){
 	};
 	
 	P.parseComicList = function (request) {
-		var document = request.getDocument();
+		pk_log( "got list response" );
+		var res_doc = request.getDocument();
 		
-		var result = document.evaluate( '//ul[@class="list"]/li/a',
-				document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null );
+		pk_log( "after getDocument()" );
+		pk_log( "result " + typeof( res_doc ) );
+		pk_log( "list is " + res_doc.documentURI );
+		
+		var result = res_doc.evaluate( '//ul[@class="list"]/li/a',
+				res_doc, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null );
 		if (null == result) {
 			// TODO: handle error
 		}
@@ -50,9 +58,9 @@ if (!piperka.ComicList) (function(){
 		}
 		
 		// find the link to the next page
-		result = document.evaluate(
+		result = res_doc.evaluate(
 				'//div[@id="paginate"]/a[text()="Next"]',
-				document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null );
+				res_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null );
 		if (null != result) {
 			match = result.singleNodeValue.getAttribute( 'href' ).match(
 					/^updates.html\?offset=(\d+)$/ );

@@ -1,4 +1,12 @@
 
+const Cc = Components.classes, Ci = Components.interfaces;
+
+function pk_log (message) {
+	Cc[ "@mozilla.org/consoleservice;1" ]
+			.getService( Ci.nsIConsoleService )
+			.logStringMessage( "piperka: " + message );
+}
+
 function doneLoading() {
 	var page = document.getElementsByTagName( 'page' )[ 0 ];
 	page.className = '';
@@ -12,5 +20,8 @@ function init_sidebar() {
 }
 
 window.addEventListener( 'load', function () {
-	window.setTimeout( init_sidebar, 2000 );
+	pk_log( "saw load event" );
+	
+	var list = new piperka.ComicList();
+	list.fetchComicList( 0 );
 }, false );

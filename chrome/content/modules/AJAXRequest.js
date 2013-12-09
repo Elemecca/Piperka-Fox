@@ -19,19 +19,24 @@ if (!piperka.AJAXRequest) (function(){
         this._failed = false;
         
         var request = Cc[ '@mozilla.org/xmlextras/xmlhttprequest;1' ]
-        	.createInstance( Ci.nsIDOMEventTarget );
+        	.createInstance( Ci.nsIXMLHttpRequest );
 
-		request.addEventListener( 'load',  this.listeners.onLoad,  false );
-		request.addEventListener( 'error', this.listeners.onError, false );
+        var emitter = request.QueryInterface( Ci.nsIDOMEventTarget );
+        
+		emitter.addEventListener( 'load',  this.listeners.onLoad,  false );
+		emitter.addEventListener( 'error', this.listeners.onError, false );
 
-		request = request.QueryInterface( Ci.nsIXMLHttpRequest );
-		request.open( 'GET', this._uri, true );
-		
-		// the response is an HTML document, parse it
-		request.responseType = 'document';
+		request.onreadystatechange = function() {
+			pk_log( "AJAXRequest ready " + request.readyState );
+		}
 		
 		// prevent the request from triggering the throbber or showing prompts
 		request.mozBackgroundRequest = true;
+		
+		request.open( 'GET', this._uri, true );
+		
+		// the response is an HTML document, parse it
+		request.responseType = "document";
 		
 		this._request = request;
     };
@@ -58,7 +63,9 @@ if (!piperka.AJAXRequest) (function(){
         L.getInterface = L.QueryInterface;
 
         L.onLoad = function (event) {
-        	this._completed = true;
+        	request._completed = true;
+        	
+        	pk_log( "AJAXRequest onLoad" );
         	
         	for (var idx = 0; idx < request._callbacks.length; idx++) {
         		try {
@@ -70,8 +77,10 @@ if (!piperka.AJAXRequest) (function(){
         };
         
         L.onError = function (event) {
-        	this._completed = true;
-        	this._failed = true;
+        	request._completed = true;
+        	request._failed = true;
+        	
+        	pk_log( "AJAXRequest onError" );
         };
 
         return L;
@@ -90,20 +99,26 @@ if (!piperka.AJAXRequest) (function(){
     	if (this._sent) throw new Error( "request has already been sent" );
     	
     	this._request.send( null );
-    	
+    	pk_log( "AJAXRequest sent" );
     	this._sent = true;
     };
     
     P.getDocument = function() {
+    	pk_log( "completed: " + this._completed + ", failed: " + this._failed );
+    	
     	if (!this._completed)
     		throw new Error( "request has not yet completed" );
     	if (this._failed)
     		throw new Error( "request failed" );
     	
-    	var document = this._request.responseXML;
-    	if (null == document)
-    		throw new Error( "response wrong content type or unparsable" );
+    	var doc = this._request.responseXML;
+    	pk_log( "document: " + typeof( doc ) );
+    	pk_log( "document: " + doc );
+    	//if (null == doc)
+    	//	throw new Error( "response wrong content type or unparsable" );
     	
-    	return document;
+    	pk_log( "before return" );
+    	
+    	return doc;
     };
 })(); // end anonymous closure scope

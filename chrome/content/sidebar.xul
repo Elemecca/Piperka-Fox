@@ -13,7 +13,8 @@
 <page id="bookmarksPanel" title="&sidebar.title;" class="loading"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" >
 
-  <script src="chrome://piperka/content/modules/TreeView.js" />
+  <script src="chrome://piperka/content/modules/AJAXRequest.js" />
+  <script src="chrome://piperka/content/modules/ComicList.js" />
   <script src="chrome://piperka/content/sidebar.js" />
 
   <vbox id="loading" flex="1" pack="center" align="center" >
