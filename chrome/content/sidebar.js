@@ -23,6 +23,11 @@ function init_sidebar (list) {
 window.addEventListener( 'load', function () {
 	pk_log( "saw load event" );
 	
+    var that = this;
 	var list = new piperka.ComicList();
-	list.fetchComicList( 0, init_sidebar.bind( null, list ) );
+	list.fetchComicList( 0, function() {
+        list.fetchUpdateList( 0, function() {
+            that.init_sidebar( list );
+        });
+    });
 }, false );

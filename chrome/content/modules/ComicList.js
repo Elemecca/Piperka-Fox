@@ -9,6 +9,7 @@ if (!piperka.ComicList) (function(){
 		this._user = "elemecca_test";
         this._comics = {};
         this._comics_sort_name = new Array();
+        this._comics_sort_updates = new Array();
 		
 		this.fetchComicList = this.fetchComicList.bind( this );
 		this.parseComicList = this.parseComicList.bind( this );
@@ -93,17 +94,18 @@ if (!piperka.ComicList) (function(){
 		}
 	};
 	
-	P.fetchUpdateList = function (offset) {
+	P.fetchUpdateList = function (offset, callback) {
         var request = new XMLHttpRequest();
         request.mozBackgroundRequest = true;
         request.open( 'GET',
 				"http://piperka.net/updates.html?offset=" + offset );
-        request.onload = this.parseUpdateList;
+        request.onload = this.parseUpdateList.bind( this, callback );
         request.responseType = "document";
 		request.send();
 	};
 	
-	P.parseUpdateList = function (request) {
+	P.parseUpdateList = function (callback, event) {
+        var request = event.target;
         if (200 != request.status) {
             pk_log( 'update list request failed: ' + request.statusText );
             return;
@@ -118,7 +120,10 @@ if (!piperka.ComicList) (function(){
 		
 		var anchor;
 		while (null != (anchor = result.iterateNext())) {
-			var match = anchor.getAttribute( 'href' ).match(
+			var href = anchor.getAttribute( 'href' );
+            if (null == href) continue;
+            
+            var match = href.match(
 					/^updates.html\?redir=(\d+)&csrf_ham=([^&]+)$/ );
 			if (null == match) {
 				// TODO: handle error
@@ -127,7 +132,7 @@ if (!piperka.ComicList) (function(){
 			var comic_id = match[ 1 ];
 			this._csrf_ham = match[ 2 ];
 			
-			match = anchor.nextSibling.textContent.match( /^\((\d+) new\)$/ );
+			match = anchor.nextSibling.textContent.match( /\((\d+) new\)/ );
 			if (null == match) {
 				// TODO: handle error
 			}
@@ -139,13 +144,16 @@ if (!piperka.ComicList) (function(){
 		}
 		
 		// find the link to the next page
-		result = res_doc.evaluate(
-				'//div[@id="paginate"]/a[text()="Next"]',
-				res_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null );
-		if (null != result) {
-			match = result.singleNodeValue.getAttribute( 'href' ).match(
-					/^updates.html\?offset=(\d+)$/ );
-			this.fetchUpdateList( match[ 1 ] );
+        var next = res_doc.querySelector( '.paginate a.next' );
+		if (null != next) {
+			var href = next.getAttribute( 'href' )
+            if (null == href) {
+                callback();
+                return;
+            }
+            
+            var match = href.match( /^updates.html\?offset=(\d+)$/ );
+			this.fetchUpdateList( match[ 1 ], callback );
 		}
 	};
 	
