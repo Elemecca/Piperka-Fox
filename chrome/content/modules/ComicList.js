@@ -7,6 +7,8 @@ if (!piperka.ComicList) (function(){
 	piperka.ComicList = function () {
 		pk_log( "constructing ComicList" );
 		this._user = "elemecca_test";
+        this._comics = {};
+        this._comics_sort_name = new Array();
 		
 		this.fetchComicList = this.fetchComicList.bind( this );
 		this.parseComicList = this.parseComicList.bind( this );
@@ -18,17 +20,25 @@ if (!piperka.ComicList) (function(){
 	
 	P.fetchComicList = function (offset) {
 		pk_log( "fetching list at offset " + offset );
-		
-		var request = new piperka.AJAXRequest(
-				"http://piperka.net/profile.html?name="
+	
+        var request = new XMLHttpRequest();
+        request.mozBackgroundRequest = true;
+        request.open( 'GET',
+				"http://piperka.net/profile.html?sort=name&name="
 				+ encodeURIComponent( this._user ) + "&offset=" + offset );
-		request.addCallback( this.parseComicList );
+        request.responseType = "document";
+        request.onload = this.parseComicList;
 		request.send();
 	};
 	
-	P.parseComicList = function (request) {
+	P.parseComicList = function (event) {
 		pk_log( "got list response" );
-		var res_doc = request.getDocument();
+        var request = event.target;
+        if (200 != request.status) {
+            pk_log( "list request failed: " + request.statusText );
+            return;
+        }
+		var res_doc = request.responseXML;
 		
 		pk_log( "after getDocument()" );
 		pk_log( "result " + typeof( res_doc ) );
@@ -42,10 +52,13 @@ if (!piperka.ComicList) (function(){
 		
 		var anchor;
 		while (null != (anchor = result.iterateNext())) {
-			var match = anchor.getAttribute( 'href' ).match(
-					/^info.html\?cid=(\d+)$/ );
+            var href = anchor.getAttribute( 'href' );
+            if (null == href) continue;
+
+			var match = href.match( /^info.html\?cid=(\d+)$/ );
 			if (null == match) {
 				// TODO: handle error
+                continue;
 			}
 			
 			var comic_id = match[ 1 ];
@@ -58,28 +71,35 @@ if (!piperka.ComicList) (function(){
 		}
 		
 		// find the link to the next page
-		result = res_doc.evaluate(
-				'//div[@id="paginate"]/a[text()="Next"]',
-				res_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null );
-		if (null != result) {
-			match = result.singleNodeValue.getAttribute( 'href' ).match(
-					/^updates.html\?offset=(\d+)$/ );
-			this.fetchUpdateList( match[ 1 ] );
+        var next = res_doc.querySelector( '.paginate a.next' );
+		if (null != next) {
+			var href = next.getAttribute( 'href' );
+            if (null == href) return;
+
+            var match = href.match( /^profile.html\?(?:.*&)?offset=(\d+)$/ );
+			this.fetchComicList( match[ 1 ] );
 		}
 	};
 	
 	P.fetchUpdateList = function (offset) {
-		var request = new piperka.AJAXRequest(
+        var request = new XMLHttpRequest();
+        request.mozBackgroundRequest = true;
+        request.open( 'GET',
 				"http://piperka.net/updates.html?offset=" + offset );
-		request.addCallback( this.parseUpdateList );
+        request.onload = this.parseUpdateList;
+        request.responseType = "document";
 		request.send();
 	};
 	
 	P.parseUpdateList = function (request) {
-		var document = request.getDocument();
+        if (200 != request.status) {
+            pk_log( 'update list request failed: ' + request.statusText );
+            return;
+        }
+		var res_doc = request.responseXML;
 		
-		var result = document.evaluate( '//ul[@class="list"]/li/a',
-				document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null );
+		var result = res_doc.evaluate( '//ul[@class="list"]/li/a',
+				res_doc, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null );
 		if (null == result) {
 			// TODO: handle error
 		}
@@ -107,9 +127,9 @@ if (!piperka.ComicList) (function(){
 		}
 		
 		// find the link to the next page
-		result = document.evaluate(
+		result = res_doc.evaluate(
 				'//div[@id="paginate"]/a[text()="Next"]',
-				document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null );
+				res_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null );
 		if (null != result) {
 			match = result.singleNodeValue.getAttribute( 'href' ).match(
 					/^updates.html\?offset=(\d+)$/ );
