@@ -12,9 +12,10 @@ function doneLoading() {
 	page.className = '';
 }
 
-function init_sidebar() {
+function init_sidebar (list) {
+    pk_log( "done loading" );
 	var tree = document.getElementById( 'comic-list' );
-	tree.view = new piperka.treeView();
+	tree.view = new piperka.treeView( list );
 
 	doneLoading();
 }
@@ -23,5 +24,5 @@ window.addEventListener( 'load', function () {
 	pk_log( "saw load event" );
 	
 	var list = new piperka.ComicList();
-	list.fetchComicList( 0 );
+	list.fetchComicList( 0, init_sidebar.bind( null, list ) );
 }, false );

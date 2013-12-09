@@ -5,24 +5,16 @@ if (!piperka) piperka = {};
 if (!piperka.treeView) (function(){
     /** @class Custom tree view for the Piperka sidebar.
      */
-    piperka.treeView = function () {
-        this.rowCount = 186;
-        this.rows = [];
-
-        var titles = [
-                'Girl Genius', 'Dominic Deegan: Oracle for Hire',
-                'Freefall', 'Spinnerette', 'Sluggy Freelance',
-                'Questionable Content', 'Girls with Slingshots',
-            ];
-        
-        for (var idx = 0; idx < this.rowCount; idx++) {
-            var row = this.rows[ idx ] = {};
-            row.count = Math.floor( Math.random() * 36 + 1 );
-            row.title = titles[
-                    Math.floor( Math.random() * titles.length ) ];
-        }
+    piperka.treeView = function (model) {
+        this.model = model;
     };
     var C = piperka.treeView.prototype = {};
+
+    Object.defineProperty( C, 'rowCount', {
+        get: function() {
+            return this.model.count();
+        }
+    });
     
     /** Informs the model of the view it is to service.
      * @param {nsITreeBoxObject} tree the tree to be served
@@ -37,7 +29,9 @@ if (!piperka.treeView) (function(){
      * @return {string} the textual contents of the cell
      */
     C.getCellText = function (row, col) {
-        return this.rows[ row ][ col.id ];
+        var comic = this.model.getComicByNameIndex( row );
+        if (null == comic) return null;
+        return comic[ col.id ];
     };
 
     /** Gets the image contents of the given cell.
@@ -46,7 +40,7 @@ if (!piperka.treeView) (function(){
      * @return {string} the URL of the image contents of the cell
      */
     C.getImageSrc = function (row, col) {
-        if (col.id != 'title') return null;
+        if (col.id != 'name') return null;
         return 'chrome://piperka/skin/icon-16.png';
     };
 

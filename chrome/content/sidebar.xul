@@ -13,8 +13,8 @@
 <page id="bookmarksPanel" title="&sidebar.title;" class="loading"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" >
 
-  <script src="chrome://piperka/content/modules/AJAXRequest.js" />
   <script src="chrome://piperka/content/modules/ComicList.js" />
+  <script src="chrome://piperka/content/modules/TreeView.js" />
   <script src="chrome://piperka/content/sidebar.js" />
 
   <vbox id="loading" flex="1" pack="center" align="center" >
@@ -24,8 +24,8 @@
   <tree id="comic-list" flex="1" class="sidebar-placesTree"
         hidecolumnpicker="true" seltype="single">
     <treecols>
-      <treecol id="title" hideheader="true" flex="5" />
-      <treecol id="count" hideheader="true" flex="1" properties="count" />
+      <treecol id="name"    hideheader="true" flex="5" />
+      <treecol id="updates" hideheader="true" flex="1" />
     </treecols>
 
     <treechildren class="sidebar-placesTreechildren"/>

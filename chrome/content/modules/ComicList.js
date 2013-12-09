@@ -17,8 +17,16 @@ if (!piperka.ComicList) (function(){
 	};
 	const C = piperka.ComicList;
 	const P = piperka.ComicList.prototype = {};
-	
-	P.fetchComicList = function (offset) {
+
+    P.count = function() {
+        return this._comics_sort_name.length;
+    }
+
+    P.getComicByNameIndex = function (index) {
+        return this._comics_sort_name[ index ];
+    }
+
+	P.fetchComicList = function (offset, callback) {
 		pk_log( "fetching list at offset " + offset );
 	
         var request = new XMLHttpRequest();
@@ -27,11 +35,11 @@ if (!piperka.ComicList) (function(){
 				"http://piperka.net/profile.html?sort=name&name="
 				+ encodeURIComponent( this._user ) + "&offset=" + offset );
         request.responseType = "document";
-        request.onload = this.parseComicList;
+        request.onload = this.parseComicList.bind( this, callback );
 		request.send();
 	};
 	
-	P.parseComicList = function (event) {
+	P.parseComicList = function (callback, event) {
 		pk_log( "got list response" );
         var request = event.target;
         if (200 != request.status) {
@@ -64,7 +72,8 @@ if (!piperka.ComicList) (function(){
 			var comic_id = match[ 1 ];
 			var comic = this._comics[ comic_id ] = {
 					id: comic_id,
-					name: anchor.innerText
+					name: anchor.textContent,
+                    updates: 0
 				};
 			
 			this._comics_sort_name.push( comic );
@@ -74,10 +83,13 @@ if (!piperka.ComicList) (function(){
         var next = res_doc.querySelector( '.paginate a.next' );
 		if (null != next) {
 			var href = next.getAttribute( 'href' );
-            if (null == href) return;
+            if (null == href) {
+                callback();
+                return;
+            }
 
             var match = href.match( /^profile.html\?(?:.*&)?offset=(\d+)$/ );
-			this.fetchComicList( match[ 1 ] );
+			this.fetchComicList( match[ 1 ], callback );
 		}
 	};
 	
